@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  # Serviço para o PostgreSQL
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: brain_agriculture
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Backend
+  brain_agriculture:
+    build:
+      context: ./brain_agriculture
+      dockerfile: Dockerfile
+    container_name: brain_agriculture_backend
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./brain_agriculture/.env
+    depends_on:
+      - postgres
+    command: ["npm", "run", "start:prod"]
+
+  # Frontend
+  brain_agriculture_front:
+    build:
+      context: ./brain_agriculture_front
+      dockerfile: Dockerfile
+    container_name: brain_agriculture_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - brain_agriculture
+
+volumes:
+  postgres_data:
+
